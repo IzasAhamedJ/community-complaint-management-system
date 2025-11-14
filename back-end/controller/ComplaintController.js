@@ -59,20 +59,38 @@ export const getComplaints = async (req, res) => {
     }
 }
 
-export const deleteComplaint=async(req,res)=>{
+export const deleteComplaint = async (req, res) => {
     try {
-         const {id}=req.params;
+        const { id } = req.params;
 
-         const complaint=await Complaint.findByIdAndDelete(id);
+        const complaint = await Complaint.findByIdAndDelete(id);
 
-         res.status(200).json({
-            message:'complaint deleted successfully',
-            success:true
-         })
+        res.status(200).json({
+            message: 'complaint deleted successfully',
+            success: true
+        })
     } catch (error) {
-         res.status(500).json({
-            message:error.message,
-            succes:false
-         })
+        res.status(500).json({
+            message: error.message,
+            succes: false
+        })
+    }
+}
+
+
+export const getAllUserComplaints = async(req,res) => {
+    try {
+        const getAlluserComplaintData = await Complaint.find({}).populate('createdBy')
+
+        res.status(200).json({
+            data: getAlluserComplaintData,
+            success: true
+        })
+    } catch (error) {
+
+        res.status(500).json({
+            message: error.message,
+            success: false
+        })
     }
 }

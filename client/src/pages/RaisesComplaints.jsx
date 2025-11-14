@@ -27,9 +27,23 @@ function RaisesComplaints() {
   const [loading, isLoading] = useState(false);
 
 
-  const { axios } = useAppContext();
+  const { axios} = useAppContext();
 
   const navigate = useNavigate();
+
+    useEffect(() => {
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      try {
+        const parsed = JSON.parse(storedToken);
+        setToken(parsed);
+      } catch (error) {
+        console.error('Error parsing token:', error);
+        toast.error('Invalid token format.');
+      }
+    }
+  }, []);
+
 
 
 
@@ -94,8 +108,8 @@ function RaisesComplaints() {
     console.log('newErrors', newErrors);
     return Object.keys(newErrors).length === 0;
   };
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+  const handleSubmit = async () => {
+  
 
     if (validateForm()) {
       isLoading(true);
@@ -140,12 +154,6 @@ function RaisesComplaints() {
   };
 
 
-
-  useEffect(() => {
-    const token = JSON.parse(localStorage.getItem('token'));
-
-    setToken(token);
-  })
   return (
     <>
       <PageTitle title={'Raise Complaint'} />

@@ -1,64 +1,98 @@
-import React, { useState } from 'react'
-import { Button } from 'primereact/button';
+import React, { useState, useRef, useEffect } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useEffect } from 'react';
+
+import { useNavigate } from 'react-router-dom';
+import toast from 'react-hot-toast';
+import { useAppContext } from '../../context/AppContext';
+import { Button } from '../../Components/Button';
+
 
 function ViewUserComplaints() {
-    const [viewComplaints, setViewComplaints] = useState([ {
-            _id: "c1",
-            title: "Street Light Not Working",
-            description: "The street light near my house has not been working for 3 days.",
-            status: "Pending",
-            assignedTo: "Ravi Kumar",
-            createdAt: "2025-11-05T10:30:00Z"
-        },
-        {
-            _id: "c2",
-            title: "Water Leakage in Community Hall",
-            description: "There is continuous water leakage in the community hall bathroom.",
-            status: "In Progress",
-            assignedTo: "Anita Sharma",
-            createdAt: "2025-11-07T14:45:00Z"
-        },
-        {
-            _id: "c3",
-            title: "Garbage Not Collected",
-            description: "Garbage has not been collected in our lane for the past 2 days.",
-            status: "Resolved",
-            assignedTo: "Suresh Patel",
-            createdAt: "2025-11-09T09:15:00Z"
-        }]);
+  const [viewComplaints, setViewComplaints] = useState([]);
+  const { axios } = useAppContext();
+  const hasFetched = useRef(false);
+  const navigate = useNavigate();
 
+  useEffect(() => {
+    if (hasFetched.current) return;
+    hasFetched.current = true;
 
-    const columns = [
-        { field: 'title', header: 'Title' },
-        { field: 'description', header: 'Description' },
-        { field: 'status', header: 'Status' },
-        { field: 'createdAt', header: 'Created On' }
-    ];
+    const fetchData = async () => {
+      try {
+        const { data: response } = await axios.get('/api/complaint/getAllUserComplaints');
+        if (response.success) {
+          const formattedData = response.data.map((item) => ({
+            id: item._id,
+            name: item.createdBy.username,
+            title: item.title,
+            description: item.description,
+            street: item.street,
+            status: item.status,
+            createdAt: new Date(item.createdAt).toLocaleString(),
+          }));
+          setViewComplaints(formattedData);
+        }
+      } catch (error) {
+        toast.error(error.message);
+      }
+    };
 
+    fetchData();
+  }, [axios]);
 
+  
+  const handleViewClick = (id) => {
+    navigate(`/app/admin/complaintAssigned/${id}`);
+  };
 
-    useEffect(() => {
-     
-    }, [])
+  const actionBodyTemplate = (rowData) => {
     return (
-        <>
-            <div style={{
-                padding: '1rem',
-                borderRadius: '10px',
-                boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-            }} className="card view-complaints-container">
-                <DataTable value={viewComplaints} tableStyle={{ minWidth: '50rem' }}>
-                    {columns.map((col, i) => (
-                        <Column key={col.field} field={col.field} header={col.header} />
-                    ))}
-                </DataTable>
-            </div>
+      <div>
+        {rowData.status === 'pending' && (
+          <Button variant="primary" emitBtn={() => handleViewClick(rowData.id)}>Assign</Button>
+        )
+        }
+             {rowData.status !== 'pending' && <div>-----</div>
+        }
+      </div>
 
-        </>
-    )
+    );
+  };
+
+  const columns = [
+    { field: 'name', header: 'Name' },
+    { field: 'title', header: 'Title' },
+    { field: 'description', header: 'Description' },
+    { field: 'street', header: 'Street' },
+    { field: 'status', header: 'Status' },
+    { field: 'createdAt', header: 'Created On' },
+  ];
+
+  return (
+    <div
+      style={{
+        padding: '1rem',
+        borderRadius: '10px',
+        boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+      }}
+      className="card view-complaints-container"
+    >
+      <DataTable
+        value={viewComplaints}
+        tableStyle={{ minWidth: '50rem' }}
+        paginator
+        rows={10}
+        className="p-datatable-striped"
+      >
+        {columns.map((col) => (
+          <Column key={col.field} field={col.field} header={col.header} />
+        ))}
+
+        <Column header="Action" body={actionBodyTemplate} />
+      </DataTable>
+    </div>
+  );
 }
 
-export default ViewUserComplaints
+export default ViewUserComplaints;

@@ -4,18 +4,19 @@ import Complaint from "../models/Complaint.js";
 
 export const assignComplaint = async (req, res) => {
   try {
-    const { complaintId, assignedTo } = req.params; // or req.body depending on your route
-
-    // 1️⃣ Create assignment record
+    const { complaintId, assignedTo } = req.params; /
+     
+    const user=await Complaint.findById(complaintId).populate('createdBy');
+   
     const newAssignment = new assignedComplaint({
       complaintId,
-      complaintRaisedUser: req.user._id,
+      complaintRaisedUser: user.createdBy._id,
       assignedTo,
     });
 
     await newAssignment.save();
 
-    // 2️⃣ Update complaint status
+   
     const complaint = await Complaint.findById(complaintId);
 
     if (!complaint) {
@@ -43,12 +44,16 @@ export const assignComplaint = async (req, res) => {
 
 export const getComplaintByUser = async (req, res) => {
    try {
-      const complaints = await assignedComplaint
+      let complaints = await assignedComplaint
          .find({ complaintRaisedUser: req.user._id })
-         .populate('assignedTo')
+         .populate('complaintId')
+         .populate('assignedTo');
+
+      // Filter after populate because status exists only inside complaintId
+      complaints = complaints.filter(c => c.complaintId?.status !== 'Completed');
 
       if (!complaints || complaints.length === 0) {
-         return res.status(404).json({
+         return res.status(204).json({
             message: 'No Data Found',
             success: false
          });
@@ -58,6 +63,7 @@ export const getComplaintByUser = async (req, res) => {
          data: complaints,
          success: true
       });
+
    } catch (error) {
       res.status(500).json({
          message: error.message,
@@ -67,10 +73,12 @@ export const getComplaintByUser = async (req, res) => {
 };
 
 
+
+
 export const getComplaintByAssignedUser=async(req,res)=>{
     try {
       const complaints = await assignedComplaint
-         .find({ assignedTo: req.user._id })
+         .find({ assignedTo: req.user._id }).populate('complaintId')
          .populate('complaintRaisedUser')
 
       if (!complaints || complaints.length === 0) {
@@ -95,13 +103,12 @@ export const getComplaintByAssignedUser=async(req,res)=>{
 
 export const updateComplaintStatusByAssignedUser = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id,status } = req.params;
 
-    // Update complaint status directly using findByIdAndUpdate
     const updatedComplaint = await Complaint.findByIdAndUpdate(
-      id,                         // complaint ID
-      { status: "in_progress" },            // fields to update
-      { new: true }                         // return the updated document
+      id,                         
+      { status: status==3?"in_progress":"Completed" },            
+      { new: true }                        
     );
 
 

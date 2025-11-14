@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
 import toast from 'react-hot-toast';
@@ -6,10 +6,11 @@ import { useAppContext } from '../context/AppContext';
 
 function ViewComplaints() {
   const [viewComplaints, setViewComplaints] = useState([]);
-  const [loading, isLoading] = useState(false);
+  const [loading, setLoading] = useState(false);
   const [token, setToken] = useState(null);
 
   const { axios, image_base_url } = useAppContext();
+  const hasFetched = useRef(false);
 
   const columns = [
     { field: 'image', header: 'Image' },
@@ -22,32 +23,43 @@ function ViewComplaints() {
     { field: 'createdAt', header: 'Created On' },
   ];
 
+  // Step 1: Load token from localStorage
   useEffect(() => {
-    const token = JSON.parse(localStorage.getItem('token'));
-    setToken(token);
+    const storedToken = localStorage.getItem('token');
+    if (storedToken) {
+      try {
+        const parsed = JSON.parse(storedToken);
+        setToken(parsed);
+      } catch (error) {
+        console.error('Error parsing token:', error);
+        toast.error('Invalid token format.');
+      }
+    }
+  }, []);
+
+  // Step 2: Fetch complaints only after token is available
+  useEffect(() => {
+    if (!token || hasFetched.current) return; // wait for token
+
+    hasFetched.current = true;
 
     const fetchData = async () => {
-      isLoading(true);
+      setLoading(true);
       try {
         const response = await axios.get('/api/complaint/getComplaints', {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
+          headers: { Authorization: `Bearer ${token}` },
         });
         setViewComplaints(response.data.data.reverse());
       } catch (error) {
-        const errorMsg =
-          error.response?.data?.message || 'Failed to load data.';
+        const errorMsg = error.response?.data?.message || 'Failed to load data.';
         toast.error(errorMsg);
       } finally {
-        isLoading(false);
+        setLoading(false);
       }
     };
 
-    if (token) {
-      fetchData();
-    }
-  }, [token]);
+    fetchData();
+  }, [axios, token]); // depend on token
 
   return (
     <div
@@ -65,11 +77,7 @@ function ViewComplaints() {
         <DataTable value={viewComplaints} tableStyle={{ minWidth: '50rem' }}>
           {columns.map((col) =>
             col.field !== 'image' ? (
-              <Column
-                key={col.field}
-                field={col.field}
-                header={col.header}
-              />
+              <Column key={col.field} field={col.field} header={col.header} />
             ) : (
               <Column
                 key={col.field}
@@ -91,9 +99,7 @@ function ViewComplaints() {
           )}
         </DataTable>
       ) : (
-        <div
-          className='text-center text-muted fs-5 p-4'
-        >
+        <div className="text-center text-muted fs-5 p-4">
           No complaints found.
         </div>
       )}

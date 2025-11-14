@@ -51,6 +51,10 @@ function Login() {
           navigate('/app/admin/view-user-complaints');
           return;
         }
+        if(response.user.role==='committee'){
+           navigate('/app/committee/view-complaints');
+          return;
+        }
       }, 2000);
     }
   } catch (error) {

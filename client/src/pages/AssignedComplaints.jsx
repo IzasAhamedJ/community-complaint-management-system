@@ -1,66 +1,103 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect, useRef } from 'react';
 import { DataTable } from 'primereact/datatable';
 import { Column } from 'primereact/column';
-import { useEffect } from 'react';
+import toast from 'react-hot-toast';
+import { useAppContext } from '../context/AppContext';
 
 function AssignedComplaints() {
+  const [assignedData, setAssignedData] = useState([]);
+  const[token,setToken]=useState(null);
 
-    const [viewAssignedComplaints, setViewAssignedComplaints] = useState([ {
-            _id: "c1",
-            title: "Street Light Not Working",
-            description: "The street light near my house has not been working for 3 days.",
-            status: "Pending",
-            assignedTo: "Ravi Kumar",
-            createdAt: "2025-11-05T10:30:00Z"
-        },
-        {
-            _id: "c2",
-            title: "Water Leakage in Community Hall",
-            description: "There is continuous water leakage in the community hall bathroom.",
-            status: "In Progress",
-            assignedTo: "Anita Sharma",
-            createdAt: "2025-11-07T14:45:00Z"
-        },
-        {
-            _id: "c3",
-            title: "Garbage Not Collected",
-            description: "Garbage has not been collected in our lane for the past 2 days.",
-            status: "Resolved",
-            assignedTo: "Suresh Patel",
-            createdAt: "2025-11-09T09:15:00Z"
-        }]);
+  const { axios } = useAppContext();
+  const hasFetched = useRef(false);
 
+  const columns = [
+    { field: 'complaintTitle', header: 'Complaint Title' },
+    { field: 'username', header: 'Assigned To' },
+    { field: 'email', header: 'Email' },
+    { field: 'phone', header: 'Contact Number' },
+    { field: 'role', header: 'Role of Committee' },
+    { field: 'assignedAt', header: 'Assigned Date' },
+  ];
 
-    const columns = [
-        { field: 'title', header: 'Title' },
-        { field: 'description', header: 'Description' },
-        { field: 'status', header: 'Status' },
-        { field: 'createdAt', header: 'Created On' }
-    ];
 
     useEffect(() => {
-       
-    }, [])
+      const storedToken = localStorage.getItem('token');
+      if (storedToken) {
+        try {
+          const parsed = JSON.parse(storedToken);
+          setToken(parsed);
+        } catch (error) {
+          console.error('Error parsing token:', error);
+          toast.error('Invalid token format.');
+        }
+      }
+    }, []);
 
-    return (
-        <>
-            <section>
-                  <div style={{
-                               padding: '1rem',
-                               //   margin: '2rem',
-                               background: '#ffffff',
-                               borderRadius: '10px',
-                               boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                           }} className="view-complaints-container">
-                               <DataTable value={viewAssignedComplaints} tableStyle={{ minWidth: '50rem' }}>
-                                   {columns.map((col, i) => (
-                                       <Column key={col.field} field={col.field} header={col.header} />
-                                   ))}
-                               </DataTable>
-                           </div>
-            </section>
-        </>
-    )
+  useEffect(() => {
+    if (!token || hasFetched.current) return;
+    hasFetched.current = true;
+
+    const fetchAssignedComplaints = async () => {
+      try {
+        const { data: response } = await axios.get(
+          '/api/assignComplaint/getComplaintsByUser',
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+            },
+          }
+        );
+
+        console.log('API Response:', response.data);
+
+        if (response.success && Array.isArray(response.data)) {
+          // ✅ Map response into a flat array with both complaint & user info
+          const formattedData = response.data.map((item) => ({
+            complaintTitle: item.complaintId?.title || 'N/A',
+            username: item.assignedTo?.username || 'N/A',
+            email: item.assignedTo?.email || 'N/A',
+            phone: item.assignedTo?.phone || 'N/A',
+            role: item.assignedTo?.role || 'N/A',
+            assignedAt: new Date(item.assignedAt).toLocaleString(),
+          }));
+
+          setAssignedData(formattedData);
+        }
+      } catch (error) {
+        console.error(error);
+        toast.error(error.message || 'Failed to load data');
+      }
+    };
+
+    fetchAssignedComplaints();
+  }, [axios, token]);
+
+  return (
+    <section>
+      <div
+        style={{
+          padding: '1rem',
+          background: '#ffffff',
+          borderRadius: '10px',
+          boxShadow: '0 2px 8px rgba(0,0,0,0.1)',
+        }}
+        className="view-complaints-container"
+      >
+        {assignedData.length > 0 ? (
+          <DataTable value={assignedData} tableStyle={{ minWidth: '60rem' }}>
+            {columns.map((col) => (
+              <Column key={col.field} field={col.field} header={col.header} />
+            ))}
+          </DataTable>
+        ) : (
+          <div className="text-center text-muted fs-5 p-4">
+            No assigned complaints found.
+          </div>
+        )}
+      </div>
+    </section>
+  );
 }
 
-export default AssignedComplaints
+export default AssignedComplaints;

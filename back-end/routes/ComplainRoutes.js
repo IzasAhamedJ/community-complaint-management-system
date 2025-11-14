@@ -1,5 +1,5 @@
 import express from 'express';
-import { createComplaints,getComplaints,deleteComplaint} from '../controller/ComplaintController.js';
+import { createComplaints,getComplaints,deleteComplaint,getAllUserComplaints} from '../controller/ComplaintController.js';
 import { upload } from '../middleware/upload.js';
 import { authMiddleware } from '../middleware/auth.js';
 
@@ -11,5 +11,7 @@ complaintsRoutes.post('/createComplaint',authMiddleware,upload.single("image"),c
 complaintsRoutes.get('/getComplaints',authMiddleware,getComplaints);
 
 complaintsRoutes.delete('/removeComplaint/:id',deleteComplaint)
+
+complaintsRoutes.get('/getAllUserComplaints',getAllUserComplaints)
 
 export default complaintsRoutes;

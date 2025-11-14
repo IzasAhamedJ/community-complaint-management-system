@@ -8,12 +8,15 @@ import ViewComplaints from './pages/ViewComplaints.jsx';
 import RaisesComplaints from './pages/RaisesComplaints.jsx';
 import CurrentNews from './pages/CurrentNews.jsx';
 import AssignedComplaints from './pages/AssignedComplaints.jsx';
+import AssignedComplaintsCommitee from './pages/commitee/AssignedComplaintsCommitee.jsx';
+import CommiteeDashboard from './pages/commitee/CommiteeDashboard.jsx';
 
 
 /**---Admin---- */
 import AdminDashboard from './pages/Admin/AdminDashboard.jsx';
 import ViewUserComplaints from './pages/Admin/ViewUserComplaints.jsx';
 import CreateCurrentNews from './pages/Admin/CreateCurrentNews.jsx';
+import Users from './pages/Admin/Users.jsx';
 
 import { Toaster } from 'react-hot-toast'
 
@@ -51,6 +54,32 @@ function App() {
         {
           path: 'create-current-news',
           element: <CreateCurrentNews />
+        },
+        {
+          path:'users',
+          element:<Users/>
+        },
+        {
+          path:'complaintAssigned/:id',
+           element:<Users/>
+        }
+      ]
+    },
+    {
+      path: 'app/committee',
+      element: <Layout />,
+      children: [
+        {
+          index: true,
+          element: <CommiteeDashboard />
+        },
+        {
+          path: 'view-complaints',
+          element: <AssignedComplaintsCommitee />
+        },
+        {
+          path: 'current-news',
+          element: <CurrentNews />
         }
       ]
     }
