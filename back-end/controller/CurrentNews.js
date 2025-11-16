@@ -13,7 +13,7 @@ export const createNews = async (req, res) => {
             title,
             description,
             message,
-             image: req.file ? `/uploads/${req.file.filename}` : null, // save image path if uploaded
+            image: req.file ? `/uploads/${req.file.filename}` : null, // save image path if uploaded
         })
 
         await news.save();
@@ -49,4 +49,23 @@ export const getNews = async (req, res) => {
             success: false
         })
     }
-} 
+}
+
+export const deleteNews = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        const deleteItem = await current.findByIdAndDelete(id);
+
+        res.status(200).json({
+            success: true,
+            message: 'Announcemnt Deleted Successfully'
+        })
+
+    } catch (error) {
+        res.status(500).json({
+            success: false,
+            message: error.message
+        })
+    }
+}

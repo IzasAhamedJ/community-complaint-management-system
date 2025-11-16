@@ -4,7 +4,7 @@ import Complaint from "../models/Complaint.js";
 
 export const assignComplaint = async (req, res) => {
   try {
-    const { complaintId, assignedTo } = req.params; /
+    const { complaintId, assignedTo } = req.params;
      
     const user=await Complaint.findById(complaintId).populate('createdBy');
    

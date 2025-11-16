@@ -6,6 +6,7 @@ import userRoutes from './routes/UserRoutes.js';
 import complaintsRoutes from './routes/ComplainRoutes.js';
 import newsRoutes from './routes/CurrentnewsRoutes.js';
 import assignRoutes from './routes/AssignComplaintRoutes.js';
+import dashboardRoutes from './routes/DashboardRoutes.js';
 
 dotenv.config();
 
@@ -25,6 +26,8 @@ app.use('/api/complaint',complaintsRoutes)
 app.use('/api/news',newsRoutes)
 
 app.use('/api/assignComplaint',assignRoutes)
+
+app.use('/api/dashboard',dashboardRoutes);
 
 app.use('/uploads',express.static('uploads'))
 

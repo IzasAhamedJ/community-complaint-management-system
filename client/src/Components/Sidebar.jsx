@@ -148,7 +148,7 @@ function Sidebar({ sidebarStatus }) {
         {role === 'committee' && (
           <ul className="nav flex-column mt-3">
             <li className="nav-item">
-              <Link to="/app/admin" className="nav-link d-flex align-items-center">
+              <Link to="/app/committee" className="nav-link d-flex align-items-center">
                 <i className="bi bi-speedometer2 nav-icon px-2"></i>
                 {sidebarOpen && <span className="menu-item">Dashboard</span>}
               </Link>
