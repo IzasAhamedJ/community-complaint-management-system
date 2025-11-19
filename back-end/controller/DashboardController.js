@@ -56,9 +56,16 @@ export const committeUserData = async (req, res) => {
             if (c.complaintId.status === "Completed") details.completed++;
         });
 
+
+        const latest = await assignedComplaint.find({ assignedTo: userId })
+            .sort({ createdAt: -1 })
+            .limit(5);
+
+
         return res.status(200).json({
             success: true,
-            details
+            details,
+            latest
         });
     } catch (error) {
         res.status(500).json({
@@ -86,9 +93,15 @@ export const adminData = async (req, res) => {
             if (c.status === "Completed") details.completed++;
         });
 
+        const latest = await Complaint.find({})
+            .sort({ createdAt: -1 })
+            .limit(5);
+
+
         return res.status(200).json({
             success: true,
-            details
+            details,
+            latest
         });
 
 
