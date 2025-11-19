@@ -90,7 +90,7 @@ function Sidebar({ sidebarStatus }) {
                 to="/app/current-news"
                 className="nav-link d-flex align-items-center"
               >
-                <i className="bi bi-gear nav-icon px-2"></i>
+                 <i class="bi bi-megaphone px-2"></i>
                 {sidebarOpen && <span className="menu-item">Announcment</span>}
               </Link>
             </li>
@@ -119,7 +119,7 @@ function Sidebar({ sidebarStatus }) {
                 to="/app/admin/create-current-news"
                 className="nav-link d-flex align-items-center"
               >
-                <i className="bi bi-graph-up nav-icon px-2"></i>
+                <i class="bi bi-megaphone px-2"></i>
                 {sidebarOpen && <span className="menu-item">Create Announcment</span>}
               </Link>
             </li>
@@ -128,7 +128,7 @@ function Sidebar({ sidebarStatus }) {
                 to="/app/admin/users"
                 className="nav-link d-flex align-items-center"
               >
-                <i className="bi bi-graph-up nav-icon px-2"></i>
+               <i class="bi bi-people px-2"></i>
                 {sidebarOpen && <span className="menu-item">Users</span>}
               </Link>
             </li>
@@ -137,7 +137,7 @@ function Sidebar({ sidebarStatus }) {
                 to="/app/current-news"
                 className="nav-link d-flex align-items-center"
               >
-                <i className="bi bi-gear nav-icon px-2"></i>
+             <i class="bi bi-megaphone px-2"></i>
                 {sidebarOpen && <span className="menu-item">Announcment</span>}
               </Link>
             </li>
@@ -167,7 +167,7 @@ function Sidebar({ sidebarStatus }) {
                 to="/app/current-news"
                 className="nav-link d-flex align-items-center"
               >
-                <i className="bi bi-gear nav-icon px-2"></i>
+                 <i class="bi bi-megaphone px-2"></i>
                 {sidebarOpen && <span className="menu-item">Announcment</span>}
               </Link>
             </li>

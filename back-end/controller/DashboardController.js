@@ -57,7 +57,7 @@ export const committeUserData = async (req, res) => {
         });
 
 
-        const latest = await assignedComplaint.find({ assignedTo: userId })
+        const latest = await assignedComplaint.find({ assignedTo: userId }).populate('complaintId')
             .sort({ createdAt: -1 })
             .limit(5);
 
